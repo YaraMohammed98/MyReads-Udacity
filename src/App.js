@@ -16,16 +16,26 @@ class App extends React.Component {
     books:[]
   }
 
+  getAllBooks=async () => {
+    await BooksApi.getAll().then((response) => this.setState({books:response}));
+  }
+
   componentDidMount() {
-    BooksApi.getAll().then((response) => this.setState({books:response}));
+    this.getAllBooks();
     
+  }
+
+  changeBookShelf = async(book,shelf) =>{
+   await BooksApi.update(book,shelf);
+   this.getAllBooks();
+
   }
 
   render() {
     return (
       <Router>
         <Routes>
-          <Route path={"/"} exact element={<Books AllBooks={this.state.books} />} />
+          <Route path={"/"} exact element={<Books AllBooks={this.state.books} changeBookShelf={this.changeBookShelf} />} />
           <Route path={"/search"} element={<Search />} />
         </Routes>
       </Router>

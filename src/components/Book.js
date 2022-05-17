@@ -1,7 +1,12 @@
 import React from "react";
 
 
-function Book({book}) {
+function Book({book ,changeBookShelf}) {
+
+ const changeShelf = (event) =>{
+       changeBookShelf(book,event.target.value)
+   } 
+
   return (
     <div>
       <li>
@@ -17,7 +22,7 @@ function Book({book}) {
               }}
             ></div>
             <div className="book-shelf-changer">
-              <select>
+              <select onChange={changeShelf} value={book.shelf}>
                 <option value="none" disabled>
                   Move to...
                 </option>
