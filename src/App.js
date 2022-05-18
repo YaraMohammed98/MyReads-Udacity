@@ -1,5 +1,5 @@
 import "./App.css";
-import React from "react";
+import React, { useState,useEffect} from 'react';
 import {
   BrowserRouter as Router,
   Route,
@@ -10,59 +10,56 @@ import Books from "./components/Books";
 import Search from "./components/Search";
 import * as BooksApi from "./BooksAPI";
 
-class App extends React.Component {
-  state = {
-    books: [],
-    searchKey: "",
-    searchedBooks: [],
-  };
-
-  getAllBooks = async () => {
+function App () {
+    const [books ,setbooks]=useState([]);
+    const [searchKey,setsearchKey]= useState("");
+    const [searchedBooks,setsearchedBooks]=useState([]);
+  
+  const getAllBooks = async () => {
     await BooksApi.getAll().then((response) =>
-      this.setState({ books: response })
+    setbooks(response)
     );
   };
 
-  componentDidMount() {
-    this.getAllBooks();
+  useEffect(() => {
+    getAllBooks()
+  },[searchKey]);
+
+  const changeBookShelf = async (book, shelf) => {
+    await BooksApi.update(book, shelf);
+    getAllBooks();
+    getSearchResult(searchKey);
+    
   }
 
-  changeBookShelf = async (book, shelf) => {
-    await BooksApi.update(book, shelf);
-    this.getAllBooks();
-    this.getSearchResult(this.state.searchKey);
-  };
-
-  setSearchKey = async (event) => {
-    if (event.target.value === "") {
-      this.setState({ searchKey: "" });
-    } else {
-      await this.setState({
-        searchKey: event.target.value,
-      });
-      this.getSearchResult(this.state.searchKey);
+  const changeSearchKey = async(event)=>{
+     setsearchKey(event.target.value)
+    if(event.target.value.length){
+     getSearchResult(event.target.value)
     }
-  };
-  
-  getSearchResult = async (searchKey) => {
+
+  }
+
+  const getSearchResult = async (searchKey) => {
     await BooksApi.search(searchKey).then((response) => {
-      if (response) {
-        this.setState({ searchedBooks: response.map((result)=>{
-          this.state.books.forEach((book)=>{
+      if (response && response.length>0) {
+        setsearchedBooks( response.map((result)=>{
+            books.forEach((book)=>{
             if(result.id === book.id){
               result.shelf=book.shelf
             }
           })
-          return result;
+         return result;
         })
-      });
-      } else {
-        this.setState({ toggleSearch: false });
+      );
+      } 
+      else{
+        setsearchedBooks([])
       }
     });
   };
 
-  render() {
+
     return (
       <Router>
         <Routes>
@@ -71,8 +68,8 @@ class App extends React.Component {
             exact
             element={
               <Books
-                AllBooks={this.state.books}
-                changeBookShelf={this.changeBookShelf}
+                AllBooks={books}
+                changeBookShelf={changeBookShelf}
               />
             }
           />
@@ -80,11 +77,10 @@ class App extends React.Component {
             path={"/search"}
             element={
               <Search
-                searchKey={this.state.searchKey}
-                searchedBooks={this.state.searchedBooks}
-                setSearchKey={this.setSearchKey}
-                changeBookShelf={this.changeBookShelf}
-                toggleSearch={this.state.toggleSearch}
+                searchKey={searchKey}
+                searchedBooks={searchedBooks}
+                changeSearchKey={changeSearchKey}
+                changeBookShelf={changeBookShelf}
               />
             }
           />
@@ -92,6 +88,6 @@ class App extends React.Component {
       </Router>
     );
   }
-}
+
 
 export default App;

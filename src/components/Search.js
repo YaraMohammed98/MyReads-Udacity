@@ -1,14 +1,19 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Book from "./Book";
+import  {useState} from 'react';
 
 function Search({
+  
   searchKey,
-  setSearchKey,
+  changeSearchKey,
   searchedBooks,
   changeBookShelf,
   
 }) {
+
+
+
   return (
     <div className="search-books">
       <div className="search-books-bar">
@@ -18,7 +23,7 @@ function Search({
         <div className="search-books-input-wrapper">
           <input
             type="text"
-            onChange={setSearchKey}
+            onChange ={changeSearchKey}
           />
         </div>
       </div>
